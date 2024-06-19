@@ -2,7 +2,6 @@ use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::fs::File;
 use std::io::BufReader;
-use std::path::Path;
 use std::sync::Arc;
 use governor::{DefaultDirectRateLimiter, Jitter, Quota, RateLimiter};
 use nonzero_ext::nonzero;
@@ -456,6 +455,7 @@ async fn main() {
         };
 
         let storyline_options = character_options.map_or(&None, |options| &options.storyline);
+        let mut storyline_triggers = Vec::new();
         for storyline in Storyline::iter() {
 
             let weight = if let Some (options) = &storyline_options {
@@ -492,10 +492,11 @@ async fn main() {
             quest_trigger.options.get_mut("Guild Wars 2").unwrap()
                 .insert("storyline".to_string(), OptionValue::Value(storyline.snake_case().to_string()));
 
-            output.game_options.triggers.push(quest_trigger);
+            storyline_triggers.push(quest_trigger);
         }
 
         output.game_options.triggers.push(trigger);
+        output.game_options.triggers.extend(storyline_triggers)
     }
 
     let file = File::create("gw2.yaml").unwrap();
