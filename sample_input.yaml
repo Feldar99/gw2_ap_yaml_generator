@@ -1,0 +1,4 @@
+#rename to "input.yaml" before running
+api_key: #your api key here
+allow_new: true
+characters:
