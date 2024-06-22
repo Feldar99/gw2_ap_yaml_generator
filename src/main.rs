@@ -83,7 +83,6 @@ impl Trigger {
 #[derive(Deserialize, Debug)]
 struct Input {
     api_key: String,
-    allow_new: bool,
     characters: HashMap<String, CharacterInput>,
 }
 
@@ -142,7 +141,9 @@ struct OutputOptions {
     quest_weight: HashMap<String, u32>,
     training_weight: HashMap<String, u32>,
     world_boss_weight: HashMap<String, u32>,
-    storyline: HashMap<String, u32>
+    storyline: HashMap<String, u32>,
+    required_mist_fragments: u32,
+    extra_mist_fragments: u32,
 }
 
 impl OutputOptions {
@@ -163,6 +164,8 @@ impl OutputOptions {
             training_weight: HashMap::new(),
             world_boss_weight: HashMap::new(),
             storyline: HashMap::new(),
+            required_mist_fragments: 10,
+            extra_mist_fragments: 5
         }
     }
 }
