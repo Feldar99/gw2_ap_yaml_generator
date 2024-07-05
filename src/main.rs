@@ -144,6 +144,8 @@ struct OutputOptions {
     storyline: HashMap<String, u32>,
     required_mist_fragments: u32,
     extra_mist_fragments: u32,
+    heal_skill: HashMap<String, u32>,
+    gear_slots: HashMap<String, u32>,
 }
 
 impl OutputOptions {
@@ -165,7 +167,9 @@ impl OutputOptions {
             world_boss_weight: HashMap::new(),
             storyline: HashMap::new(),
             required_mist_fragments: 10,
-            extra_mist_fragments: 5
+            extra_mist_fragments: 5,
+            heal_skill: HashMap::new(),
+            gear_slots: HashMap::new(),
         }
     }
 }
@@ -236,6 +240,14 @@ impl Default for OutputOptions {
         val.world_boss_weight.insert("random".to_string(), 0);
         val.world_boss_weight.insert("random-low".to_string(), 0);
         val.world_boss_weight.insert("random-high".to_string(), 0);
+
+        val.heal_skill.insert("randomize".to_string(), 1);
+        val.heal_skill.insert("early".to_string(), 10);
+        val.heal_skill.insert("starting".to_string(), 50);
+
+        val.gear_slots.insert("randomize".to_string(), 5);
+        val.gear_slots.insert("early".to_string(), 50);
+        val.gear_slots.insert("starting".to_string(), 10);
 
         val
     }
@@ -349,6 +361,7 @@ async fn main() {
     println!("{:?}", input);
 
     let reqwest_client = Arc::new(RateLimitedReqwestClient::new());
+
     let character_names = {
         let uri = format!("https://api.guildwars2.com/v2/characters?access_token={}", input.api_key);
         let response = reqwest_client.get(&uri).await.send().await.unwrap();
@@ -365,7 +378,7 @@ async fn main() {
 
     let characters = {
         let mut tasks = FuturesUnordered::new();
-        for name in character_names {
+        for name in &character_names {
             let uri =
                 format!("https://api.guildwars2.com/v2/characters/{}/core?access_token={}",
                         name,
@@ -373,9 +386,10 @@ async fn main() {
             tasks.push(tokio::spawn(reqwest_client.get(uri).await.send()));
         }
 
-        let mut characters = Vec::<Character>::new();
+        let mut characters = HashMap::new();
         while let Some(finished_task) = tasks.next().await {
-            characters.push(finished_task.unwrap().unwrap().json().await.unwrap());
+            let character: Character = finished_task.unwrap().unwrap().json().await.unwrap();
+            characters.insert(character.name.clone(), character);
         }
 
         characters
@@ -428,36 +442,53 @@ async fn main() {
 
 
     let mut output = Output::default();
-    for character in characters {
-        let character_options = input.characters.get(&character.name);
-        let weight = character_options.map_or(default_weight(), |options| options.weight);
-        output.game_options.character.insert(character.name.clone(), weight);
+    for (character_name, character_options) in input.characters {
+        let character = characters.get(&character_name);
 
-        let mut trigger = Trigger::new("character".to_string(), character.name.clone());
+        let weight = character_options.weight;
+        output.game_options.character.insert(character_name.clone(), weight);
+
+        let mut trigger = Trigger::new("character".to_string(), character_name.clone());
         trigger.options.insert("Guild Wars 2".to_string(), HashMap::new());
+
 
         trigger.options.get_mut("Guild Wars 2").unwrap()
             .insert("character_profession".to_string(), OptionValue::Table(HashMap::new()));
         trigger.options.get_mut("Guild Wars 2").unwrap()
-            .get_mut("character_profession").unwrap()
-            .insert(character.profession, default_weight());
+            .insert("character_race".to_string(), OptionValue::Table(HashMap::new()));
+
+        let completed_quest_ids;
+        let profession;
+        let race;
+        if let Some(character) = character {
+            profession = character.profession.clone();
+            race = character.race.clone();
+
+            completed_quest_ids = Some({
+                let uri = format!("https://api.guildwars2.com/v2/characters/{}/quests?access_token={}", &character_name, input.api_key);
+                println!("{}", uri);
+                let response = reqwest_client.get(uri).await.send().await.unwrap();
+                response.json::<HashSet<u32>>().await.unwrap()
+            });
+
+        }
+        else {
+            profession = "random".to_string();
+            race = "random".to_string();
+            completed_quest_ids = None;
+        }
 
         trigger.options.get_mut("Guild Wars 2").unwrap()
-            .insert("character_race".to_string(), OptionValue::Table(HashMap::new()));
+            .get_mut("character_profession").unwrap()
+            .insert(profession, default_weight());
         trigger.options.get_mut("Guild Wars 2").unwrap()
             .get_mut("character_race").unwrap()
-            .insert(character.race, default_weight());
+            .insert(race, default_weight());
 
         trigger.options.get_mut("Guild Wars 2").unwrap()
             .insert("storyline".to_string(), OptionValue::Table(HashMap::new()));
 
-        let completed_quest_ids = {
-            let uri = format!("https://api.guildwars2.com/v2/characters/{}/quests?access_token={}", &character.name, input.api_key);
-            let response = reqwest_client.get(uri).await.send().await.unwrap();
-            response.json::<HashSet<u32>>().await.unwrap()
-        };
-
-        let storyline_options = character_options.map_or(&None, |options| &options.storyline);
+        let storyline_options = character_options.storyline;
         let mut storyline_triggers = Vec::new();
         for storyline in Storyline::iter() {
 
@@ -473,17 +504,24 @@ async fn main() {
             };
 
             let season = &seasons[storyline.id()];
-            let completed_count = completed_quest_ids.iter().filter(|&q| season.story_ids.contains(&quests[q].story_id)).count();
-            println!("{}", character.name);
+            let completed_count =
+                if let Some(completed) = &completed_quest_ids {
+                     completed.iter().filter(|&q| season.story_ids.contains(&quests[q].story_id)).count()
+                }
+                else {
+                    0
+                }
+            ;
+            println!("{}", character_name);
             println!("{:?}, count: {}", completed_quest_ids, completed_count);
             println!("{}: {:?}", storyline.snake_case(), season);
 
 
-            for (id, quest) in quests.iter().filter(|(&id, q)| season.story_ids.contains(&q.story_id)) {
-                println!("{}: {}", quest.name, if completed_quest_ids.contains(&id) {"Complete"} else {"Incomplete"});
-            }
+            // for (id, quest) in quests.iter().filter(|(&id, q)| season.story_ids.contains(&q.story_id)) {
+            //     println!("{}: {}", quest.name, if completed_quest_ids.contains(&id) {"Complete"} else {"Incomplete"});
+            // }
 
-            let intermediate_option_result = format!("{} {}", storyline.snake_case().to_string(), character.name.clone());
+            let intermediate_option_result = format!("{} {}", storyline.snake_case().to_string(), character_name.clone());
             trigger.options.get_mut("Guild Wars 2").unwrap()
                 .get_mut("storyline").unwrap()
                 .insert(intermediate_option_result.clone(), weight);
