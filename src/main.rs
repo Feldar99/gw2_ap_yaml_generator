@@ -143,7 +143,7 @@ struct OutputOptions {
     world_boss_weight: HashMap<String, u32>,
     storyline: HashMap<String, u32>,
     required_mist_fragments: u32,
-    extra_mist_fragments: u32,
+    extra_mist_fragment_percent: u32,
     heal_skill: HashMap<String, u32>,
     gear_slots: HashMap<String, u32>,
 }
@@ -167,7 +167,7 @@ impl OutputOptions {
             world_boss_weight: HashMap::new(),
             storyline: HashMap::new(),
             required_mist_fragments: 10,
-            extra_mist_fragments: 5,
+            extra_mist_fragment_percent: 50,
             heal_skill: HashMap::new(),
             gear_slots: HashMap::new(),
         }
