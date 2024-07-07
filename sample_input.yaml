@@ -1,20 +1,22 @@
-#rename to "input.yaml" before running
-api_key: #your api key here
-characters:
-  Existing Character:
-    #weight: 50 # This will default to 50 if left blank
-    #storyline: # These are the default values. If you change set one, it overrides them all
-      # secrets_of_the_obscure: 512
-      # end_of_dragons: 256
-      # icebood_saga: 128
-      # season_4: 64
-      # path_of_fire: 32
-      # season_3: 16
-      # heart_of_thorns: 8
-      # season_2: 4
-      # season_1: 2
-      # core: 1
+# rename to "input.yaml" before running
+api_key: # your api key here
+characters: # List your characters here.
+  My Character Name:
+    weight: 50 # This will default to 50 if left blank
+    storyline: # These are the storylines that you want to do with this character.
+      secrets_of_the_obscure: 512
+      end_of_dragons: 256
+      icebood_saga: 128
+      season_4: 64
+      path_of_fire: 32
+      season_3: 16
+      heart_of_thorns: 8
+      season_2: 4
+      season_1: 2
+      core: 1
   New Character:
-    #weight: 50 # This will default to 50 if left blank
+    weight: 50 # This will default to 50 if left blank
+    # It is recommended that you limit new characters to core,
+    # unless you want to spend a level 80 boost to get to another storyline
     storyline:
         core: 50
