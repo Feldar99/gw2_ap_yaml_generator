@@ -14,6 +14,9 @@ characters: # List your characters here.
       season_2: 4
       season_1: 2
       core: 1
+    #include any other options you want to depend on this character
+  Second Character Name:
+    #if storyline left blank, all storylines will have an equal weight
   New Character:
     weight: 50 # This will default to 50 if left blank
     # It is recommended that you limit new characters to core,

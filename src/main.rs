@@ -141,11 +141,14 @@ struct OutputOptions {
     quest_weight: HashMap<String, u32>,
     training_weight: HashMap<String, u32>,
     world_boss_weight: HashMap<String, u32>,
+    unique_item_weight: HashMap<String, u32>,
+    poi_weight: HashMap<String, u32>,
     storyline: HashMap<String, u32>,
     mist_fragments_required: u32,
     extra_mist_fragment_percent: u32,
     heal_skill: HashMap<String, u32>,
     gear_slots: HashMap<String, u32>,
+    storyline_items: HashMap<String, u32>,
 }
 
 impl OutputOptions {
@@ -165,11 +168,14 @@ impl OutputOptions {
             quest_weight: HashMap::new(),
             training_weight: HashMap::new(),
             world_boss_weight: HashMap::new(),
+            unique_item_weight: HashMap::new(),
+            poi_weight: HashMap::new(),
             storyline: HashMap::new(),
             mist_fragments_required: 10,
             extra_mist_fragment_percent: 50,
             heal_skill: HashMap::new(),
             gear_slots: HashMap::new(),
+            storyline_items: HashMap::new(),
         }
     }
 }
@@ -241,6 +247,16 @@ impl Default for OutputOptions {
         val.world_boss_weight.insert("random-low".to_string(), 0);
         val.world_boss_weight.insert("random-high".to_string(), 0);
 
+        val.unique_item_weight.insert("250".to_string(), 50);
+        val.unique_item_weight.insert("random".to_string(), 0);
+        val.unique_item_weight.insert("random-low".to_string(), 0);
+        val.unique_item_weight.insert("random-high".to_string(), 0);
+
+        val.poi_weight.insert("250".to_string(), 50);
+        val.poi_weight.insert("random".to_string(), 0);
+        val.poi_weight.insert("random-low".to_string(), 0);
+        val.poi_weight.insert("random-high".to_string(), 0);
+
         val.heal_skill.insert("randomize".to_string(), 1);
         val.heal_skill.insert("early".to_string(), 10);
         val.heal_skill.insert("starting".to_string(), 50);
@@ -248,6 +264,11 @@ impl Default for OutputOptions {
         val.gear_slots.insert("randomize".to_string(), 5);
         val.gear_slots.insert("early".to_string(), 50);
         val.gear_slots.insert("starting".to_string(), 10);
+
+        val.storyline_items.insert("all".to_string(), 0);
+        val.storyline_items.insert("core".to_string(), 0);
+        val.storyline_items.insert("storyline".to_string(), 0);
+        val.storyline_items.insert("storyline_plus".to_string(), 50);
 
         val
     }
@@ -332,6 +353,21 @@ impl Storyline {
             Storyline::IcebroodSaga => 41,
             Storyline::EndOfDragons => 27,
             Storyline::SecretsOfTheObscure => 20,
+        }
+    }
+
+    const fn max_training(&self, is_revenant: bool) -> usize {
+        match self {
+            Storyline::Core => {if is_revenant {82} else {86}},
+            Storyline::Season1 => 0,
+            Storyline::Season2 => 0,
+            Storyline::HeartOfThorns => {if is_revenant {18} else {19}},
+            Storyline::Season3 => 0,
+            Storyline::PathOfFire => {if is_revenant {18} else {19}},
+            Storyline::Season4 => 0,
+            Storyline::IcebroodSaga => 0,
+            Storyline::EndOfDragons => {if is_revenant {18} else {19}},
+            Storyline::SecretsOfTheObscure => 0,
         }
     }
 }
@@ -526,14 +562,19 @@ async fn main() {
                 .get_mut("storyline").unwrap()
                 .insert(intermediate_option_result.clone(), weight);
 
-            let mut quest_trigger = Trigger::new("storyline".to_string(), intermediate_option_result);
-            quest_trigger.options.insert("Guild Wars 2".to_string(), HashMap::new());
-            quest_trigger.options.get_mut("Guild Wars 2").unwrap()
+            let mut storyline_trigger = Trigger::new("storyline".to_string(), intermediate_option_result);
+            storyline_trigger.options.insert("Guild Wars 2".to_string(), HashMap::new());
+            storyline_trigger.options.get_mut("Guild Wars 2").unwrap()
                 .insert("max_quests".to_string(), OptionValue::Value(format!("{}", storyline.max_quests() - completed_count)));
-            quest_trigger.options.get_mut("Guild Wars 2").unwrap()
+
+
+            // storyline_trigger.options.get_mut("Guild Wars 2").unwrap()
+            //     .insert("max_training".to_string(), OptionValue::Value(format!("{}", storyline.max_training(profession == "Revenant") - completed_count)));
+            storyline_trigger.options.get_mut("Guild Wars 2").unwrap()
                 .insert("storyline".to_string(), OptionValue::Value(storyline.snake_case().to_string()));
 
-            storyline_triggers.push(quest_trigger);
+
+            storyline_triggers.push(storyline_trigger);
         }
 
         output.game_options.triggers.push(trigger);
