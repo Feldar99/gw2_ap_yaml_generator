@@ -208,6 +208,7 @@ impl Default for OutputOptions {
         val.starting_mainhand_weapon.insert("rifle".to_string(), 0);
         val.starting_mainhand_weapon.insert("short_bow".to_string(), 0);
         val.starting_mainhand_weapon.insert("staff".to_string(), 0);
+        val.starting_mainhand_weapon.insert("spear".to_string(), 0);
         val.starting_mainhand_weapon.insert("random_proficient".to_string(), 50);
         val.starting_mainhand_weapon.insert("random_proficient_one_handed".to_string(), 0);
         val.starting_mainhand_weapon.insert("random_proficient_two_handed".to_string(), 0);
@@ -221,11 +222,11 @@ impl Default for OutputOptions {
         val.starting_offhand_weapon.insert("random_proficient".to_string(), 50);
 
         val.group_content.insert("none".to_string(), 50);
-        val.group_content.insert("five_man".to_string(), 25);
-        val.group_content.insert("ten_man".to_string(), 10);
+        val.group_content.insert("five_man".to_string(), 0); //25
+        val.group_content.insert("ten_man".to_string(), 0); //4
 
-        val.include_competitive.insert("false".to_string(), 50);
-        val.include_competitive.insert("true".to_string(), 10);
+        val.include_competitive.insert("false".to_string(), 50); //25
+        val.include_competitive.insert("true".to_string(), 0); //8
 
         val.achievement_weight.insert("500".to_string(), 50);
         val.achievement_weight.insert("random".to_string(), 0);
@@ -247,28 +248,28 @@ impl Default for OutputOptions {
         val.world_boss_weight.insert("random-low".to_string(), 0);
         val.world_boss_weight.insert("random-high".to_string(), 0);
 
-        val.unique_item_weight.insert("250".to_string(), 50);
+        val.unique_item_weight.insert("100".to_string(), 50);
         val.unique_item_weight.insert("random".to_string(), 0);
         val.unique_item_weight.insert("random-low".to_string(), 0);
         val.unique_item_weight.insert("random-high".to_string(), 0);
 
-        val.poi_weight.insert("250".to_string(), 50);
+        val.poi_weight.insert("400".to_string(), 50);
         val.poi_weight.insert("random".to_string(), 0);
         val.poi_weight.insert("random-low".to_string(), 0);
         val.poi_weight.insert("random-high".to_string(), 0);
 
-        val.heal_skill.insert("randomize".to_string(), 1);
-        val.heal_skill.insert("early".to_string(), 10);
-        val.heal_skill.insert("starting".to_string(), 50);
+        val.heal_skill.insert("randomize".to_string(), 0);
+        val.heal_skill.insert("early".to_string(), 0);
+        val.heal_skill.insert("starting".to_string(), 50); //25
 
-        val.gear_slots.insert("randomize".to_string(), 5);
-        val.gear_slots.insert("early".to_string(), 50);
-        val.gear_slots.insert("starting".to_string(), 10);
+        val.gear_slots.insert("randomize".to_string(), 0); //20
+        val.gear_slots.insert("early".to_string(), 50); //25
+        val.gear_slots.insert("starting".to_string(), 0); //20
 
-        val.storyline_items.insert("all".to_string(), 0);
-        val.storyline_items.insert("core".to_string(), 0);
-        val.storyline_items.insert("storyline".to_string(), 0);
-        val.storyline_items.insert("storyline_plus".to_string(), 50);
+        val.storyline_items.insert("all".to_string(), 0); //1
+        val.storyline_items.insert("core".to_string(), 0); //1
+        val.storyline_items.insert("storyline".to_string(), 0); //1
+        val.storyline_items.insert("storyline_plus".to_string(), 50); //25
 
         val
     }
@@ -293,6 +294,7 @@ enum Storyline {
     IcebroodSaga,
     EndOfDragons,
     SecretsOfTheObscure,
+    JanthirWilds,
 }
 
 impl Storyline {
@@ -308,6 +310,7 @@ impl Storyline {
             Storyline::IcebroodSaga => "EDCAE800-302A-4D9B-8331-3CC769ADA0B3",
             Storyline::EndOfDragons => "D1B709AB-92B6-4EE9-8B40-2B7C628E5022",
             Storyline::SecretsOfTheObscure => "AEE99452-D323-4ABB-8F49-D7C0A752CBD1",
+            Storyline::JanthirWilds => "5EFFBB71-7C6D-4594-A87D-88B8CF38FDA3",
         }
     }
 
@@ -323,22 +326,12 @@ impl Storyline {
             Storyline::IcebroodSaga => "icebrood_saga",
             Storyline::EndOfDragons => "end_of_dragons",
             Storyline::SecretsOfTheObscure => "secrets_of_the_obscure",
+            Storyline::JanthirWilds => "janthir_wilds"
         }
     }
 
     const fn default_weight(&self) -> u32 {
-        match self {
-            Storyline::Core => 1,
-            Storyline::Season1 => 2,
-            Storyline::Season2 => 4,
-            Storyline::HeartOfThorns => 8,
-            Storyline::Season3 => 16,
-            Storyline::PathOfFire => 32,
-            Storyline::Season4 => 64,
-            Storyline::IcebroodSaga => 128,
-            Storyline::EndOfDragons => 256,
-            Storyline::SecretsOfTheObscure => 512,
-        }
+        50
     }
 
     const fn max_quests(&self) -> usize {
@@ -353,6 +346,7 @@ impl Storyline {
             Storyline::IcebroodSaga => 41,
             Storyline::EndOfDragons => 27,
             Storyline::SecretsOfTheObscure => 20,
+            Storyline::JanthirWilds => 13,
         }
     }
 
@@ -368,6 +362,7 @@ impl Storyline {
             Storyline::IcebroodSaga => 0,
             Storyline::EndOfDragons => {if is_revenant {18} else {19}},
             Storyline::SecretsOfTheObscure => 0,
+            Storyline::JanthirWilds => 0
         }
     }
 }
