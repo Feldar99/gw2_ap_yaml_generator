@@ -4,16 +4,17 @@ characters: # List your characters here.
   My Character Name:
     weight: 50 # This will default to 50 if left blank
     storyline: # These are the storylines that you want to do with this character.
-      secrets_of_the_obscure: 512
-      end_of_dragons: 256
-      icebood_saga: 128
-      season_4: 64
-      path_of_fire: 32
-      season_3: 16
-      heart_of_thorns: 8
-      season_2: 4
-      season_1: 2
-      core: 1
+      janthir_wilds: 50
+      secrets_of_the_obscure: 50
+      end_of_dragons: 50
+      icebood_saga: 50
+      season_4: 50
+      path_of_fire: 50
+      season_3: 50
+      heart_of_thorns: 50
+      season_2: 50
+      season_1: 50
+      core: 50
     #include any other options you want to depend on this character
   Second Character Name:
     #if storyline left blank, all storylines will have an equal weight

@@ -222,11 +222,11 @@ impl Default for OutputOptions {
         val.starting_offhand_weapon.insert("random_proficient".to_string(), 50);
 
         val.group_content.insert("none".to_string(), 50);
-        val.group_content.insert("five_man".to_string(), 0); //25
-        val.group_content.insert("ten_man".to_string(), 0); //4
+        val.group_content.insert("five_man".to_string(), 0);
+        val.group_content.insert("ten_man".to_string(), 0);
 
-        val.include_competitive.insert("false".to_string(), 50); //25
-        val.include_competitive.insert("true".to_string(), 0); //8
+        val.include_competitive.insert("false".to_string(), 50);
+        val.include_competitive.insert("true".to_string(), 0);
 
         val.achievement_weight.insert("500".to_string(), 50);
         val.achievement_weight.insert("random".to_string(), 0);
@@ -260,16 +260,16 @@ impl Default for OutputOptions {
 
         val.heal_skill.insert("randomize".to_string(), 0);
         val.heal_skill.insert("early".to_string(), 0);
-        val.heal_skill.insert("starting".to_string(), 50); //25
+        val.heal_skill.insert("starting".to_string(), 50);
 
-        val.gear_slots.insert("randomize".to_string(), 0); //20
-        val.gear_slots.insert("early".to_string(), 50); //25
-        val.gear_slots.insert("starting".to_string(), 0); //20
+        val.gear_slots.insert("randomize".to_string(), 0);
+        val.gear_slots.insert("early".to_string(), 50);
+        val.gear_slots.insert("starting".to_string(), 0);
 
-        val.storyline_items.insert("all".to_string(), 0); //1
-        val.storyline_items.insert("core".to_string(), 0); //1
-        val.storyline_items.insert("storyline".to_string(), 0); //1
-        val.storyline_items.insert("storyline_plus".to_string(), 50); //25
+        val.storyline_items.insert("core".to_string(), 0);
+        val.storyline_items.insert("storyline".to_string(), 0);
+        val.storyline_items.insert("storyline_plus".to_string(), 50);
+        val.storyline_items.insert("all".to_string(), 0);
 
         val
     }
